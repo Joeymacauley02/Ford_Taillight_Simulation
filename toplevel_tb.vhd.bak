@@ -1,0 +1,89 @@
+-- 
+-- author:   Joey Macauley and Ian Flury
+-- file:     tb_debnc.vhd
+-- comments: Basic test bench for Debouncing Circuit
+--
+
+library ieee;
+use ieee.std_logic_1164.all;
+use std.textio.all;
+
+entity tb_debnc is
+end tb_debnc;
+
+architecture beh of tb_debnc is
+
+	signal KEY0_net: std_logic := '1';
+	signal CLK_net : std_logic := '0';
+	signal LED0_net : std_logic := '0';
+	signal KEY3_net : std_logic := '1';
+
+	component debnc
+	port(	KEY0	: in std_logic;
+			KEY3	: in std_logic;
+			CLK 	: in std_logic;
+			LED0 	: out std_logic);
+	end component debnc;
+begin
+
+debnc_instance: debnc
+port map (
+	KEY0 => KEY0_net,
+	KEY3 => KEY3_net,
+	CLK => CLK_net,
+	LED0 => LED0_net
+	);
+
+	
+clk: process
+begin
+	CLK_net <= '0';
+	wait for 2 ms; 
+	CLK_net <= '1';
+	wait for 2 ms;
+end process clk; 
+  
+  
+tb: process
+begin
+	
+	KEY0_net <= '1';
+	wait for 150 ms;
+	
+	KEY0_net <= '0';
+	wait for 150 ms;
+	
+	KEY0_net <= '1';
+	wait for 150 ms;
+	
+	KEY0_net <= '0';
+	wait for 150 ms; 
+	
+	KEY0_net <= '1';
+	wait for 150 ms;
+	
+	KEY0_net <= '0';
+	wait for 150 ms;
+	
+	KEY0_net <= '1';
+	wait for 150 ms;
+	
+	KEY3_net <= '0';
+	wait for 150 ms;
+	
+	KEY3_net <= '1';
+	wait for 150 ms;
+	
+	KEY0_net <= '0';
+	wait for 150 ms;
+	
+	KEY0_net <= '1';
+	wait for 150 ms;
+
+	assert false
+	report "End of TestBench"
+	severity failure;
+
+  end process tb;
+    
+end architecture beh;

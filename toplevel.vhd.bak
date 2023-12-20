@@ -1,0 +1,192 @@
+-- 
+-- author:   Joey Macauley
+-- file:     debnc.vhdl
+-- comments: Implementation of Circuit for Debouncing
+--
+
+library ieee;
+use ieee.std_logic_1164.all;
+use IEEE.numeric_std.ALL;
+
+entity debnc is
+port ( 
+	CLK		: in std_logic;
+	KEY0	: in std_logic;
+	KEY3	: in std_logic; 
+	LED0 	: out std_logic
+	);
+end debnc;
+
+architecture rtl of debnc is
+
+signal en_pcount : std_logic; 
+signal en_rcount : std_logic; 
+
+signal check_p : std_logic;  
+signal check_r : std_logic; 
+
+signal pressed, toggle : std_logic;
+
+signal reset_all : std_logic; 
+
+
+begin	
+	-- press button
+	btn_press : process(CLK, KEY0)
+	variable Q1, Q2 : std_logic; 
+	begin
+		if rising_edge(CLK) then
+			if (reset_all = '1') then
+				en_pcount <= '0';	
+			else
+			end if; 
+			Q2 := Q1; 
+			Q1 := KEY0;
+			if (Q1 = '0' and Q2 = '1') then
+				en_pcount <= '1';
+			else
+			end if;			 
+		else
+		end if;  
+	end process btn_press; 
+
+	btn_released : process(CLK, KEY0)
+	variable Q1, Q2 : std_logic; 
+	begin
+		if rising_edge(CLK) then
+			if (reset_all = '1') then
+				en_rcount <= '0';	
+			else
+			end if; 
+			Q2 := Q1; 
+			Q1 := KEY0;
+			if (Q1 = '1' and Q2 = '0' and pressed = '1') then
+				en_rcount <= '1'; 
+			else
+			end if;			 
+		else
+		end if;  
+	end process btn_released;
+
+
+	-- check if actually pressed
+	press_check : process(CLK)
+	begin
+		if rising_edge(CLK) then
+			if (reset_all = '1') then
+				pressed <= '0';	
+			else
+			end if; 
+
+			if (KEY0 = '0' and check_p = '1') then
+				pressed <= '1'; 
+			else
+			end if;
+		else
+		end if; 
+	end process press_check; 
+
+
+	-- check if actually released 
+	release_check : process(CLK)
+	begin
+		if rising_edge(CLK) then
+			if (KEY0 = '1' and check_r = '1') then 
+				toggle <= '1'; 
+			else
+				toggle <= '0'; 
+			end if; 
+		else
+		end if; 
+	end process release_check; 
+
+
+	-- countered triggered for press
+	press_cnt: process(CLK, en_pcount)
+	variable counter: unsigned(21 downto 0) := (others => '0');
+	begin
+		if rising_edge(CLK) then
+			if (reset_all = '1') then
+				check_p <= '0';	
+				counter := (others => '0');
+			else
+			end if; 
+
+			if (en_pcount = '1') then
+				if rising_edge(CLK) then
+					if (counter = 2500000) then
+						counter := (others => '0'); 
+						check_p <= '1'; 					
+					else 
+						counter := counter + 1;
+					end if; 
+				else
+				end if; 
+			else
+			end if;
+		else 
+		end if; 
+	end process press_cnt; 
+
+
+	-- counter triggered for release
+	release_cnt: process(CLK, en_rcount, pressed)
+	variable counter: unsigned(21 downto 0) := (others => '0');
+	begin
+		if rising_edge(CLK) then
+			if (reset_all = '1') then
+				check_r <= '0';
+				counter := (others => '0');	
+			else
+			end if; 
+			
+			if (en_rcount = '1' and pressed = '1') then
+				if rising_edge(CLK) then
+					if (counter = 2500000) then
+						counter := (others => '0'); 
+						check_r <= '1';					
+					else 
+						counter := counter + 1;
+					end if;
+				else 
+				end if;
+			else
+			end if;
+		else
+		end if; 
+	end process release_cnt; 
+
+
+	led_p: process(CLK, KEY3, toggle)
+	variable led_state : std_logic := '0'; 
+	begin
+		if rising_edge(CLK) then
+			if (KEY3 = '0') then
+				LED0 <= '0'; 
+				led_state := '0';
+			elsif (led_state = '0' and toggle = '1') then
+				LED0 <= '1'; 
+				led_state := '1';
+			elsif (led_state = '1' and toggle = '1') then
+				LED0 <= '0'; 
+				led_state := '0';
+			else
+			end if;
+		else
+		end if;
+	end process led_p;
+
+	
+	reset_p: process(CLK, toggle)
+	begin
+		if rising_edge(CLK) then
+			if (toggle = '1') then
+				reset_all <= '1'; 
+			else
+				reset_all <= '0'; 	
+			end if;
+		else
+		end if; 
+	end process reset_p; 
+
+end rtl;

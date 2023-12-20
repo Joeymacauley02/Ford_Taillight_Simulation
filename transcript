@@ -1,0 +1,19 @@
+# Reading pref.tcl
+# vsim -gui -voptargs="+acc" work.toplevel_tb -do "./scripts/waves.do" 
+# Start time: 10:54:36 on Oct 17,2023
+# Loading std.standard
+# Loading std.textio(body)
+# Loading ieee.std_logic_1164(body)
+# Loading work.toplevel_tb(beh)
+# Loading ieee.numeric_std(body)
+# Loading work.toplevel(rtl)
+# Loading work.counter(rtl)
+# Loading work.taillight(rtl)
+# do ./scripts/waves.do
+# ** Failure: End of TestBench
+#    Time: 900 ms  Iteration: 0  Process: /toplevel_tb/tb File: ./toplevel_tb.vhd
+# Break in Process tb at ./toplevel_tb.vhd line 85
+# 0 ps
+# 945 ms
+# End time: 11:02:26 on Oct 17,2023, Elapsed time: 0:07:50
+# Errors: 1, Warnings: 0
